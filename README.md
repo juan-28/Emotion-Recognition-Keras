@@ -7,7 +7,6 @@ This project explores human emotion recognition from images using deep learning,
 - Flask==3.0.0
 
 - gunicorn==20.1.0
-
 - tensorflow==2.8.0
 
 - numpy==1.22.3
