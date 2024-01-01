@@ -4,11 +4,16 @@
 This project explores human emotion recognition from images using deep learning, focusing on CNN architectures including a baseline CNN, a modified VGGNet, and a pre-trained ResNet-50 with transfer learning. The FER-2013 dataset, containing grayscale facial expression images, was used for training and evaluation.
 
 ## Installation
--Flask==3.0.0
--gunicorn==20.1.0
--tensorflow==2.8.0
--numpy==1.22.3
--Pillow==9.0.1
+- Flask==3.0.0
+
+- gunicorn==20.1.0
+
+- tensorflow==2.8.0
+
+- numpy==1.22.3
+
+- Pillow==9.0.1
+
 -matplotlib==3.5.1
 -seaborn==0.11.2
 -Werkzeug==3.0.0
