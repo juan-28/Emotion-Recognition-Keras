@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emotion Prediction with Heatmap Visualization</title>
+    <style>
+      /* Global Styles */
+      body,
+      html {
+        margin: 0;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-family: "Arial", sans-serif;
+        background-color: #f2f2f2;
+      }
+
+      /* Container */
+      .container {
+        text-align: center;
+        padding: 20px;
+        width: 80%;
+        max-width: 900px;
+        margin-top: 40px;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+      #progress-bar-container {
+        margin-top: 20px;
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Images and Heatmap Container */
+      .images-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .image-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 45%;
+      }
+
+      #uploaded-image,
+      #heatmap-image {
+        max-width: 100%;
+        max-height: 300px;
+        border: 3px solid #ddd;
+        border-radius: 5px;
+      }
+
+      /* Buttons */
+      .button {
+        padding: 10px 10px;
+        margin-top: 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        width: 50%;
+        display: block;
+      }
+
+      .button:hover {
+        background-color: #45a049;
+      }
+
+      #progress-bar {
+        height: 20px;
+        background-color: #4caf50;
+        border-radius: 5px;
+        width: 0%;
+        transition: width 0.4s ease;
+      }
+
+      /* Prediction Result */
+      #prediction-result {
+        font-size: 18px;
+        color: #333;
+        margin-top: 20px;
+      }
+
+      /* Titles and Headings */
+      .title {
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      /* Color Theme */
+      .color-theme {
+        background-color: #4caf50;
+        color: white;
+        padding: 20px 0;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* File Input Styles */
+      .file-input-wrapper {
+        margin-top: 20px;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .file-input-label {
+        padding: 10px 25px;
+        background-color: #bbb;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        width: auto;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="color-theme">
+      <h1>Upload Image for Emotion Prediction</h1>
+    </div>
+
+    <div class="container">
+      <form
+        id="upload-form"
+        action="/predict"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="file-input-wrapper">
+          <label for="file-input" class="file-input-label">Choose File</label>
+          <input type="file" name="file" id="file-input" accept="image/*" />
+        </div>
+        <div class="images-container">
+          <div class="image-box">
+            <div id="title-original" class="title" style="display: none">
+              Original Image
+            </div>
+            <img
+              id="uploaded-image"
+              src="#"
+              alt="Uploaded Image"
+              style="display: none"
+            />
+          </div>
+          <div class="image-box">
+            <div id="title-heatmap" class="title" style="display: none">
+              Occlusion-based Heatmap
+            </div>
+            <img
+              id="heatmap-image"
+              src="#"
+              alt="Heatmap Image"
+              style="display: none"
+            />
+          </div>
+        </div>
+        <div id="progress-bar-container" style="display: none">
+          <div
+            id="progress-bar"
+            style="width: 0%; height: 20px; background-color: blue"
+          ></div>
+        </div>
+        <button
+          type="button"
+          class="button"
+          id="predict-button"
+          style="display: none"
+        >
+          Predict
+        </button>
+        <button
+          type="button"
+          class="button"
+          id="heatmap-button"
+          style="display: none"
+        >
+          Generate Heatmap
+        </button>
+        <!-- Place this button inside your form or where appropriate -->
+        <button type="button" class="button" id="reset-button">Reset</button>
+      </form>
+      <div id="prediction-result"></div>
+    </div>
+
+    <script>
+      document.getElementById("file-input").onchange = function (e) {
+        var img = document.getElementById("uploaded-image");
+        var titleOriginal = document.getElementById("title-original");
+        img.src = URL.createObjectURL(e.target.files[0]);
+        img.onload = function () {
+          URL.revokeObjectURL(img.src); // Free memory
+          img.style.display = "block";
+          titleOriginal.style.display = "block"; // Show title when image is loaded
+          document.getElementById("predict-button").style.display = "block";
+        };
+      };
+
+      document.getElementById("predict-button").onclick = function () {
+        var formData = new FormData(document.getElementById("upload-form"));
+        fetch("/predict", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            storedImagePath = data.image_path;
+            var prediction = data.prediction; // Adjust based on your response structure
+            document.getElementById("prediction-result").innerText =
+              "Predicted Emotion is: " + prediction;
+            document.getElementById("heatmap-button").style.display = "block"; // Show heatmap button after prediction
+          })
+          .catch((error) => console.error("Error:", error));
+      };
+
+      document.getElementById("heatmap-button").onclick = function () {
+        document.getElementById("progress-bar-container").style.display =
+          "block";
+        var progressBar = document.getElementById("progress-bar");
+        var width = 0;
+
+        // Start a timer to update the progress bar
+        var interval = setInterval(function () {
+          if (width >= 100) {
+            clearInterval(interval);
+          } else {
+            width++;
+            progressBar.style.width = width + "%";
+          }
+        }, 400); // Adjust the interval time as needed
+
+        fetch("/heatmap", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image_path: storedImagePath }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.blob();
+          })
+          .then((blob) => {
+            clearInterval(interval); // Stop the progress bar
+            progressBar.style.width = "100%"; // Optional: immediately set progress to 100%
+
+            var url = window.URL.createObjectURL(blob);
+            var img = document.getElementById("heatmap-image");
+            img.onload = function () {
+              window.URL.revokeObjectURL(url); // Free up memory
+              // Reset progress bar
+              progressBar.style.width = "0%";
+              document.getElementById("progress-bar-container").style.display =
+                "none";
+            };
+            img.src = url;
+            img.style.display = "block";
+            document.getElementById("title-heatmap").style.display = "block";
+            document.getElementById("reset-button").style.display = "block";
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            clearInterval(interval); // Stop and reset the progress bar on error
+            progressBar.style.width = "0%";
+            document.getElementById("progress-bar-container").style.display =
+              "none";
+          });
+      };
+
+      document.getElementById("reset-button").onclick = function () {
+        // Clear the images
+        document.getElementById("uploaded-image").style.display = "none";
+        document.getElementById("heatmap-image").style.display = "none";
+
+        // Hide the titles
+        var originalTitle = document.getElementById("title-original");
+        var heatmapTitle = document.getElementById("title-heatmap");
+        originalTitle.style.display = "none";
+        heatmapTitle.style.display = "none";
+
+        // Hide the buttons
+        document.getElementById("predict-button").style.display = "none";
+        document.getElementById("heatmap-button").style.display = "none";
+        this.style.display = "none"; // Also hide the reset button itself
+
+        // Clear the prediction result
+        document.getElementById("prediction-result").innerText = "";
+
+        // Reset the file input
+        document.getElementById("upload-form").reset();
+      };
+    </script>
+  </body>
+</html>

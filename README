@@ -1,0 +1,8 @@
+Emotion Recognition App - README
+Overview
+This Emotion Recognition App utilizes a fine-tuned ResNet50 model to identify human emotions from facial images. It's designed to process and predict emotions like Angry, Disgust, Fear, Happy, Sad, Surprise, and Neutral.
+
+Features
+Image Upload: Users can upload an image to be analyzed.
+Emotion Prediction: The app predicts the emotion of the face in the image.
+Heatmap Generation: Provides a heatmap for visualizing areas influencing the prediction.
