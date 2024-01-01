@@ -5,17 +5,13 @@ This project explores human emotion recognition from images using deep learning,
 
 ## Installation
 - Flask==3.0.0
-
 - gunicorn==20.1.0
 - tensorflow==2.8.0
-
 - numpy==1.22.3
-
 - Pillow==9.0.1
-
--matplotlib==3.5.1
--seaborn==0.11.2
--Werkzeug==3.0.0
+- matplotlib==3.5.1
+- seaborn==0.11.2
+- Werkzeug==3.0.0
 
 ## Dataset
 FER-2013: Contains 35887 grayscale images of faces across seven emotion classes (0=Angry, 1=Disgust, 2=Fear, 3=Happy, 4=Sad, 5=Surprise, 6=Neutral)
